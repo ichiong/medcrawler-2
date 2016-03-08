@@ -1,0 +1,36 @@
+from scrapy.contrib.spiders import CrawlSpider, Rule
+from scrapy.contrib.linkextractors.sgml import LinkExtractor
+from scrapy.selector import HtmlXPathSelector, Selector
+from scrapy.utils.response import get_base_url
+from medcrawler.items import MedcrawlerItem
+
+
+class MySpider(CrawlSpider):
+    name = 'mcr'
+    allowed_domains = ['321.portal.athenahealth.com']
+    start_urls = ['https://6078.portal.athenahealth.com/']
+
+    rules = (
+        Rule(LinkExtractor(deny_domains=('google.com','facebook.com','twitter.com')), callback='parse', follow=True),
+        #Rule(SgmlLinkExtractor(allow=('\/en\/item\-[a-z0-9\-]+\-scrap\.html')), process_links='process_links', callback='parse', follow=True),
+        #Rule(SgmlLinkExtractor(allow=('')), process_links='process_links', follow=True),
+    )
+
+
+    
+    def parse(self, response):
+        hxs = HtmlXPathSelector(response)
+        #sel = Selector(response)
+        #sites = hxs.select("//form[@id='loginpane']")
+        items = []
+        
+        
+        #for site in sites:
+        item = MedcrawlerItem()
+            #relative_url = hxs.select('//a/@href').extract()[0]
+        item['title'] = hxs.select('//form[contains(@id, "email")]').extract()
+            #item['link'] = site.xpath('//div[contains(@class, "login")]').extract()
+            #base_url = get_base_url(response)
+            #item['title'] = urljoin_rfc(base_url,relative_url)
+            items.append(item)
+        return items
